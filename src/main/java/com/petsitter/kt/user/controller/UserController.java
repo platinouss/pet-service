@@ -2,6 +2,7 @@ package com.petsitter.kt.user.controller;
 
 import com.petsitter.kt.user.controller.dto.SignupRequest;
 import com.petsitter.kt.user.controller.dto.UserDetailsResponse;
+import com.petsitter.kt.user.controller.dto.UserModifyRequest;
 import com.petsitter.kt.user.service.UserService;
 import com.petsitter.kt.user.service.dto.UserDetailsResult;
 import jakarta.validation.Valid;
@@ -20,6 +21,18 @@ public class UserController {
     public ResponseEntity<UserDetailsResponse> userDetails(@PathVariable("id") Long userId) {
         UserDetailsResult result = userService.findUser(userId);
         return ResponseEntity.ok(UserDetailsResponse.fromResult(result));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> userModify(@PathVariable("id") Long userId, @RequestBody UserModifyRequest request) {
+        userService.modifyUser(userId, request.toCommand());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> userRemove(@PathVariable("id") Long userId) {
+        userService.removeUser(userId);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/signup")

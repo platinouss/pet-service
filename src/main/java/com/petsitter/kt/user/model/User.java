@@ -1,7 +1,9 @@
 package com.petsitter.kt.user.model;
 
+import com.petsitter.kt.user.service.dto.UserModifyCommand;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -29,7 +31,17 @@ public class User {
     @Column(nullable = false)
     private String phoneNumber;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
 //    @Column(nullable = false)
 //    @Enumerated(EnumType.STRING)
 //    private Role role;
+
+    public void modify(UserModifyCommand command) {
+        this.username = command.username();
+        this.email = command.email();
+        this.phoneNumber = command.phoneNumber();
+    }
 }
