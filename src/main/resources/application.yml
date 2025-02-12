@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: pet-sitter
+  profiles:
+    default: local
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: jdbc:postgresql://${LOCAL_POSTGRESQL_HOST}:5432/${LOCAL_POSTGRESQL_DATABASE}
+    username: ${LOCAL_POSTGRESQL_USERNAME}
+    password: ${LOCAL_POSTGRESQL_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
