@@ -6,8 +6,8 @@
           <span class="hidden font-bold sm:inline-block">Pet Service</span>
         </router-link>
         <nav class="flex items-center space-x-6 text-sm font-medium">
-          <router-link to="/browse" class="transition-colors hover:text-foreground/80 text-foreground">
-            펫시터 서비스 예약
+          <router-link to="/pet-sitter" class="transition-colors hover:text-foreground/80 text-foreground">
+            펫시터 서비스
           </router-link>
           <router-link to="/sell" class="transition-colors hover:text-foreground/80 text-foreground">
             펫시터 등록

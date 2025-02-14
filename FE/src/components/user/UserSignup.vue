@@ -16,8 +16,35 @@ const checkEmail = async () => {
 
 const handleSubmit = async (e) => {
   e.preventDefault()
+
+  try {
+    const response = await fetch('http://localhost:8080/api/login', { // 백엔드 API 주소로 변경
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value,
+      }),
+      credentials: 'include', // 세션 기반 로그인 시 필요
+    });
+
+    if (!response.ok) {
+      throw new Error('로그인 실패');
+    }
+
+    const data = await response.json();
+    console.log('로그인 성공:', data);
+
+    router.push('/');
+  } catch (error) {
+    console.error('로그인 오류:', error);
+    alert('로그인에 실패했습니다. 다시 시도해주세요.');
+  }
+
   console.log("회원가입:", { email: email.value, name: name.value, password: password.value, phone: phone.value })
-  router.push("/login")
+  router.push("/")
 }
 </script>
 

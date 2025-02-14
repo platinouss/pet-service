@@ -3,12 +3,18 @@ import UserProfile from "../components/user/UserProfile.vue";
 import MainPage from "../components/main/MainPage.vue";
 import UserSignin from "../components/user/UserSignin.vue";
 import UserSignup from "../components/user/UserSignup.vue";
+import Petsitter from "../components/pet-sitter/Petsitter.vue";
+import PetsitterRegister from "../components/pet-sitter/PetsitterRegister.vue";
+import PetSitterProfile from "../components/pet-sitter/PetsitterProfile.vue";
 
 const routes = [
     { path: '/', component: MainPage },
     { path: '/signin', component: UserSignin },
     { path: '/signup', component: UserSignup },
-    { path: '/profile', component: UserProfile }
+    { path: '/profile', component: UserProfile },
+    { path: '/pet-sitter', component: Petsitter },
+    { path: '/pet-sitter/register', component: PetsitterRegister },
+    { path: '/pet-sitter/me', component: PetSitterProfile }
 ]
 
 const router = createRouter({
