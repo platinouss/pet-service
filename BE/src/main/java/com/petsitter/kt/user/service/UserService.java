@@ -36,4 +36,11 @@ public class UserService {
     public void removeUser(Long userId) {
         userRepository.deleteById(userId);
     }
+
+    @Transactional(readOnly = true)
+    public void isEmailAvailable(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new RuntimeException("이미 가입된 이메일입니다.");
+        }
+    }
 }

@@ -35,6 +35,12 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/email-available")
+    public ResponseEntity<Void> checkEmail(@RequestParam(value = "email")String email) {
+        userService.isEmailAvailable(email);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(@Valid @RequestBody SignupRequest request) {
         userService.addUser(request.toCommand());
