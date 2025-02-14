@@ -21,3 +21,5 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+frontend:
+  url: ${LOCAL_FRONTEND_URL}
