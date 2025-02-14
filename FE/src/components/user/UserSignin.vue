@@ -1,16 +1,38 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from "vue-toastification";
+import { useAuthStore } from "../../stores/auth.js";
 
 const email = ref('');
 const password = ref('');
+const authStore = useAuthStore();
 const router = useRouter();
+const toast = useToast();
 
-const handleSubmit = (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
-  console.log('로그인:', { email: email.value, password: password.value });
-  router.push('/');
-};
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/signin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value,
+      }),
+    });
+    if (!response.ok) {
+      toast.error("아이디 또는 비밀번호가 일치하지 않습니다.");
+      return;
+    }
+    authStore.login(email.value);
+    await router.push('/');
+  } catch (error) {
+    toast.error("서버 연결에 실패했습니다.");
+  }
+}
 </script>
 
 <template>

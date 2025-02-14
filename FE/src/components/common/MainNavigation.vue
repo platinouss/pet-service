@@ -34,7 +34,7 @@
         </div>
       </Teleport>
       <div class="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-        <div v-if="isConnected" class="flex items-center space-x-2">
+        <div v-if="authStore.isAuthenticated" class="flex items-center space-x-2">
           <div class="h-8 w-8 rounded-full bg-gray-300"></div>
           <div class="relative">
             <button @click="isDropdownOpen = !isDropdownOpen" class="ml-auto hidden md:flex items-center space-x-1 bg-white px-3 py-2 rounded-md border">
@@ -49,7 +49,7 @@
             </div>
           </div>
         </div>
-        <div class="ml-auto hidden md:flex items-center space-x-1 bg-white px-3 py-2 rounded-md border">
+        <div v-if="!authStore.isAuthenticated" class="ml-auto hidden md:flex items-center space-x-1 bg-white px-3 py-2 rounded-md border">
           <router-link to="/signin">Login</router-link>
         </div>
       </div>
@@ -59,15 +59,13 @@
 
 <script setup>
 import { ref } from 'vue'
-import { Menu, X, ChevronDown, UserPlus } from 'lucide-vue-next'
+import { Menu, X, ChevronDown } from 'lucide-vue-next'
+import { useAuthStore } from "../../stores/auth.js";
 
-const isConnected = ref(false)
+const authStore = useAuthStore();
+
 const isMenuOpen = ref(false)
 const isDropdownOpen = ref(false)
-
-const login = () => {
-  isConnected.value = true
-}
 
 const logout = () => {
   isConnected.value = false

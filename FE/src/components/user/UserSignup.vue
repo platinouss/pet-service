@@ -1,24 +1,68 @@
 <script setup>
 import { ref } from "vue"
 import { useRouter } from "vue-router"
+import {useToast} from "vue-toastification";
 
 const email = ref("")
 const name = ref("")
 const password = ref("")
-const phone = ref("")
+const phone1 = ref('010')
+const phone2 = ref('')
+const phone3 = ref('')
 const emailAvailable = ref(null)
 const router = useRouter()
+const toast = useToast();
 
 const checkEmail = async () => {
-  const isAvailable = Math.random() < 0.5
-  emailAvailable.value = isAvailable
+  try {
+    emailAvailable.value = null;
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/email-available?email=${email.value}`)
+    if (!response.ok) {
+      toast.error("이미 가입된 이메일입니다.");
+      return;
+    }
+    emailAvailable.value = true
+  } catch (error) {
+    console.error('이메일 중복 확인 오류:', error);
+    toast.error('이메일 중복 확인에 실패했습니다. 다시 시도해주세요.');
+  }
+}
+
+const handlePhoneInput = (e, part, maxLength) => {
+  const input = e.target.value.replace(/\D/g, '')
+  
+  if (part === 1) {
+    phone1.value = input.slice(0, maxLength)
+    if (input.length >= maxLength) {
+      document.getElementById('phone2').focus()
+    }
+  } else if (part === 2) {
+    phone2.value = input.slice(0, maxLength)
+    if (input.length >= maxLength) {
+      document.getElementById('phone3').focus()
+    }
+  } else {
+    phone3.value = input.slice(0, maxLength)
+  }
 }
 
 const handleSubmit = async (e) => {
-  e.preventDefault()
-
+  e.preventDefault();
+  if (emailAvailable.value === null) {
+    toast.error("이메일 중복 확인을 해주세요.");
+    return;
+  }
+  if (emailAvailable.value === false) {
+    toast.error("이미 가입된 이메일입니다. 다른 이메일로 진행해주세요.");
+    return;
+  }
+  if (phone1.value.length < 3 || phone2.value.length < 4 || phone3.value.length < 4) {
+    toast.error("휴대폰 번호를 입력해주세요.");
+    return;
+  }
+  const fullPhone = `${phone1.value}-${phone2.value}-${phone3.value}`
   try {
-    const response = await fetch('http://localhost:8080/api/login', { // 백엔드 API 주소로 변경
+    await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -26,25 +70,16 @@ const handleSubmit = async (e) => {
       body: JSON.stringify({
         email: email.value,
         password: password.value,
+        username: name.value,
+        phoneNumber: fullPhone,
       }),
-      credentials: 'include', // 세션 기반 로그인 시 필요
     });
-
-    if (!response.ok) {
-      throw new Error('로그인 실패');
-    }
-
-    const data = await response.json();
-    console.log('로그인 성공:', data);
-
-    router.push('/');
+    toast.success("회원가입이 완료되었습니다. 로그인해주세요.");
+    await router.push('/signin');
   } catch (error) {
     console.error('로그인 오류:', error);
-    alert('로그인에 실패했습니다. 다시 시도해주세요.');
+    toast.error('회원가입에 실패했습니다. 다시 시도해주세요.');
   }
-
-  console.log("회원가입:", { email: email.value, name: name.value, password: password.value, phone: phone.value })
-  router.push("/")
 }
 </script>
 
@@ -102,15 +137,39 @@ const handleSubmit = async (e) => {
             />
           </div>
 
-          <div>
-            <label for="phone" class="block text-sm font-medium text-gray-700">연락처</label>
-            <input
-                type="tel"
-                id="phone"
-                v-model="phone"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
+          <div class="input-group">
+            <label class="input-label">휴대폰 번호</label>
+            <div class="phone-input-group">
+              <input
+                type="text"
+                id="phone1"
+                v-model="phone1"
+                @input="(e) => handlePhoneInput(e, 1, 3)"
+                maxlength="3"
+                class="phone-input"
+                placeholder="010"
+              >
+              <span class="phone-separator">-</span>
+              <input
+                type="text"
+                id="phone2"
+                v-model="phone2"
+                @input="(e) => handlePhoneInput(e, 2, 4)"
+                maxlength="4"
+                class="phone-input"
+                placeholder="0000"
+              >
+              <span class="phone-separator">-</span>
+              <input
+                type="text"
+                id="phone3"
+                v-model="phone3"
+                @input="(e) => handlePhoneInput(e, 3, 4)"
+                maxlength="4"
+                class="phone-input"
+                placeholder="0000"
+              >
+            </div>
           </div>
 
           <div>
@@ -146,3 +205,43 @@ const handleSubmit = async (e) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.phone-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.phone-input {
+  width: 80px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.phone-separator {
+  color: #666;
+  font-weight: bold;
+}
+
+.phone-input::-webkit-inner-spin-button,
+.phone-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+  font-weight: 400;
+  color: #333;
+}
+</style>
