@@ -22,6 +22,7 @@ const handleSubmit = async (e) => {
         email: email.value,
         password: password.value,
       }),
+      credentials: 'include'
     });
     if (!response.ok) {
       toast.error("아이디 또는 비밀번호가 일치하지 않습니다.");

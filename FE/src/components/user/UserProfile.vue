@@ -1,13 +1,31 @@
 <template>
   <div class="profile-container">
     <div class="profile-wrapper">
-      <h2>내 프로필</h2>
       <div class="relative">
+        <h2>내 프로필</h2>
+        <div v-if="isEditing" class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-4">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <Pencil class="h-5 w-5 text-indigo-500" />
+            </div>
+            <div class="ml-3">
+              <p class="text-sm text-indigo-700">
+                프로필 편집 후 저장 버튼을 눌러주세요.
+              </p>
+            </div>
+          </div>
+        </div>
         <button 
           @click="isEditing ? handleSave() : handleEdit()" 
-          class="p-2 rounded-full hover:bg-gray-100 absolute top-0 right-0"
+          :class="[
+            'absolute top-0 right-0 flex items-center px-4 py-2 rounded-md transition-all',
+            isEditing 
+              ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          ]"
         >
-          <component :is="isEditing ? Check : Pencil" class="h-4 w-4" />
+          <component :is="isEditing ? Check : Pencil" class="h-4 w-4 mr-2" />
+          {{ isEditing ? '저장하기' : '편집하기' }}
         </button>
       </div>
       <div class="p-6">
@@ -30,17 +48,49 @@
           <div class="flex-grow space-y-4">
             <div class="space-y-2">
               <div>
-                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                <input id="name" v-model="name" :readonly="!isEditing" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                <label for="name" class="block text-sm font-medium text-gray-700">이름</label>
+                <input 
+                  id="name" 
+                  v-model="username"
+                  :readonly="!isEditing" 
+                  :class="[
+                    'mt-1 block w-full rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:ring-opacity-50',
+                    isEditing 
+                      ? 'border-indigo-300 bg-white focus:border-indigo-500' 
+                      : 'border-transparent bg-gray-100 cursor-default'
+                  ]"
+                />
               </div>
               <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                <input id="email" v-model="email" :readonly="!isEditing" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                <label for="email" class="block text-sm font-medium text-gray-700">이메일</label>
+                <input 
+                  id="email" 
+                  v-model="email" 
+                  :readonly="!isEditing" 
+                  :class="[
+                    'mt-1 block w-full rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:ring-opacity-50',
+                    isEditing 
+                      ? 'border-indigo-300 bg-white focus:border-indigo-500' 
+                      : 'border-transparent bg-gray-100 cursor-default'
+                  ]"
+                />
               </div>
               <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                <label for="phoneNumber" class="block text-sm font-medium text-gray-700">휴대전화</label>
                 <div class="flex space-x-2">
-                  <input v-for="(part, index) in phone" :key="index" v-model="phone[index]" :readonly="!isEditing" :maxlength="index === 0 ? 3 : 4" class="mt-1 block w-1/3 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                  <input 
+                    v-for="(part, index) in phoneNumber"
+                    :key="index" 
+                    v-model="phoneNumber[index]"
+                    :readonly="!isEditing" 
+                    :maxlength="index === 0 ? 3 : 4" 
+                    :class="[
+                      'mt-1 block w-1/3 rounded-md shadow-sm focus:ring focus:ring-indigo-200 focus:ring-opacity-50',
+                      isEditing 
+                        ? 'border-indigo-300 bg-white focus:border-indigo-500' 
+                        : 'border-transparent bg-gray-100 cursor-default'
+                    ]"
+                  />
                 </div>
               </div>
             </div>
@@ -66,49 +116,138 @@
             </div>
           </div>
         </div>
-        <button class="mt-6 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 inline-flex items-center">
+        <button @click="showDeleteModal = true" class="mt-6 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 inline-flex items-center">
           <LogOut class="mr-2 h-4 w-4" /> 회원 탈퇴
         </button>
       </div>
     </div>
+    
+    <Transition name="modal">
+      <div v-if="showDeleteModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0">
+          <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="showDeleteModal = false"></div>
+          
+          <div class="relative bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full sm:p-6">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                <AlertTriangle class="h-6 w-6 text-red-600" />
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">회원 탈퇴</h3>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-500">
+                    정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없으며, 모든 데이터가 영구적으로 삭제됩니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+              <button
+                type="button"
+                class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
+                @click="handleDeleteAccount"
+              >
+                탈퇴하기
+              </button>
+              <button
+                type="button"
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                @click="showDeleteModal = false"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue'
-import { Pencil, Upload, LogOut, Check } from 'lucide-vue-next'
+<script setup>
+import {onMounted, ref} from 'vue'
+import { Pencil, Upload, LogOut, Check, AlertTriangle } from 'lucide-vue-next'
+import { useToast } from "vue-toastification";
 
-interface Reservation {
-  date: string
-  time: string
-  petsitterName: string
-  location: string
-  status: '진행 전' | '진행 중' | '진행 완료'
-}
+const isEditing = ref(false);
+const username = ref('');
+const email = ref('');
+const phoneNumber = ref(['', '', '']);
+const toast = useToast();
+const showDeleteModal = ref(false);
 
-const isEditing = ref(false)
-const name = ref('현종')
-const email = ref('platinouss@gmail.com')
-const phone = ref(['010', '1234', '5678'])
+onMounted(async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/me`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'
+    });
+    const data = await response.json();
+    username.value = data.username;
+    email.value = data.email;
+    phoneNumber.value = data.phoneNumber.split('-');
+  } catch (e) {
+    toast.error('내 정보 조회에 실패했습니다.');
+  }
+});
 
-const reservations = ref<Reservation[]>([
-  { date: "2023-06-15", time: "14:00-16:00", petsitterName: "홍길동", location: "서울 강남구", status: "진행 전" },
-  { date: "2023-06-10", time: "13:00-15:00", petsitterName: "아무개", location: "서울 송파구", status: "진행 완료" },
-])
-
-const statusColors = {
-  "진행 전": "bg-blue-500 text-white",
-  "진행 중": "bg-yellow-500 text-white",
-  "진행 완료": "bg-green-500 text-white",
-}
+// const reservations = ref([
+//   { date: "2023-06-15", time: "14:00-16:00", petsitterName: "홍길동", location: "서울 강남구", status: "진행 전" },
+//   { date: "2023-06-10", time: "13:00-15:00", petsitterName: "아무개", location: "서울 송파구", status: "진행 완료" },
+// ])
+//
+// const statusColors = {
+//   "진행 전": "bg-blue-500 text-white",
+//   "진행 중": "bg-yellow-500 text-white",
+//   "진행 완료": "bg-green-500 text-white",
+// }
 
 const handleEdit = () => {
-  isEditing.value = true
+  isEditing.value = true;
 }
 
-const handleSave = () => {
-  isEditing.value = false
+const handleSave = async () => {
+  isEditing.value = false;
+  try {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/me`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: username.value,
+        phoneNumber: phoneNumber.value.join('-'),
+        email: email.value,
+      }),
+      credentials: 'include'
+    });
+    toast.success('프로필이 성공적으로 저장되었습니다.');
+  } catch (e) {
+    toast.error('내 정보 조회에 실패했습니다.');
+  }
 }
+
+const handleDeleteAccount = async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/me`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+    if (response.ok) {
+      toast.success('회원 탈퇴가 완료되었습니다.');
+      window.location.href = '/';
+    } else {
+      throw new Error('회원 탈퇴 실패');
+    }
+  } catch (e) {
+    toast.error('회원 탈퇴에 실패했습니다.');
+  } finally {
+    showDeleteModal.value = false;
+  }
+};
 </script>
 
 <style scoped>
@@ -128,6 +267,7 @@ const handleSave = () => {
   width: 100%;
   max-width: 600px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 h2 {
@@ -149,22 +289,12 @@ label {
 input {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1.5px solid #e0e0e0;
-  border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
 }
 
 input:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-}
-
-input:disabled {
-  background-color: #f3f4f6;
-  color: #666;
-  cursor: not-allowed;
 }
 
 button {
@@ -195,5 +325,17 @@ button {
 input[type="file"] {
   display: none;
 }
+
+input:not([readonly]) {
+  border: 2px solid #818cf8;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.1);
+}
+
+input:not([readonly]):focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
 </style>
 
