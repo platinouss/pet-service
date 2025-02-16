@@ -23,7 +23,7 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<Void> signin(@RequestBody SigninRequest request, HttpSession session) {
         UserDetailsResult userDetails = authService.authenticate(request.toQuery());
-        session.setAttribute("user", userDetails);
+        session.setAttribute("userId", userDetails.userId());
         session.setMaxInactiveInterval(SESSION_TIMEOUT_SECONDS);
         return ResponseEntity.ok().build();
     }

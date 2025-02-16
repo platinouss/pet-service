@@ -17,26 +17,14 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDetailsResponse> userDetails(@PathVariable("id") Long userId) {
+    @GetMapping("/me")
+    public ResponseEntity<UserDetailsResponse> userDetails(@SessionAttribute(name = "userId") Long userId) {
         UserDetailsResult result = userService.findUser(userId);
         return ResponseEntity.ok(UserDetailsResponse.fromResult(result));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> userModify(@PathVariable("id") Long userId, @RequestBody UserModifyRequest request) {
-        userService.modifyUser(userId, request.toCommand());
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> userRemove(@PathVariable("id") Long userId) {
-        userService.removeUser(userId);
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("/email-available")
-    public ResponseEntity<Void> checkEmail(@RequestParam(value = "email")String email) {
+    public ResponseEntity<Void> checkEmail(@RequestParam(value = "email") String email) {
         userService.isEmailAvailable(email);
         return ResponseEntity.ok().build();
     }
@@ -44,6 +32,18 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(@Valid @RequestBody SignupRequest request) {
         userService.addUser(request.toCommand());
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<Void> userModify(@SessionAttribute(name = "userId") Long userId, @Valid @RequestBody UserModifyRequest request) {
+        userService.modifyUser(userId, request.toCommand());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> userRemove(@SessionAttribute(name = "userId") Long userId) {
+        userService.removeUser(userId);
         return ResponseEntity.ok().build();
     }
 }
