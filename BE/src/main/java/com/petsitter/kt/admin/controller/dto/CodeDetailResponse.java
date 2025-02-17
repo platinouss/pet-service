@@ -7,7 +7,7 @@ import lombok.Builder;
 public record CodeDetailResponse(
         String codeId,
         String codeName,
-        String codeValue,
+        String description,
         Integer sortOrder,
         Boolean isActive
 ) {
@@ -16,7 +16,7 @@ public record CodeDetailResponse(
         return CodeDetailResponse.builder()
                 .codeId(result.codeId())
                 .codeName(result.codeName())
-                .codeValue(result.codeValue())
+                .description(result.description())
                 .sortOrder(result.sortOrder())
                 .isActive(result.isActive())
                 .build();

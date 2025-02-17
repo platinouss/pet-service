@@ -5,7 +5,7 @@ import com.petsitter.kt.admin.service.dto.AddCodeCommand;
 public record CodeAddRequest(
         String codeId,
         String codeName,
-        String codeValue,
+        String description,
         String groupId,
         Integer sortOrder
 ) {
@@ -14,7 +14,7 @@ public record CodeAddRequest(
         return AddCodeCommand.builder()
                 .codeId(codeId)
                 .codeName(codeName)
-                .codeValue(codeValue)
+                .description(description)
                 .groupId(groupId)
                 .sortOrder(sortOrder)
                 .build();

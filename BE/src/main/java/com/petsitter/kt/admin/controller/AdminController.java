@@ -27,7 +27,7 @@ public class AdminController {
     }
 
     @GetMapping("/code")
-    public ResponseEntity<List<CodeDetailResponse>> codeDetails(@PathVariable("groupId") String groupId) {
+    public ResponseEntity<List<CodeDetailResponse>> codeDetails(@RequestParam String groupId) {
         List<CodeDetailResult> results = adminService.findCodeDetail(groupId);
         return ResponseEntity.ok(results.stream().map(CodeDetailResponse::fromResult).toList());
     }

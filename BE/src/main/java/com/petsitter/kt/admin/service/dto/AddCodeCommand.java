@@ -6,7 +6,7 @@ import lombok.Builder;
 public record AddCodeCommand(
         String codeId,
         String codeName,
-        String codeValue,
+        String description,
         String groupId,
         Integer sortOrder
 ) {

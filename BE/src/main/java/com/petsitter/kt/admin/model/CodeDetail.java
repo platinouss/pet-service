@@ -21,11 +21,11 @@ public class CodeDetail {
     @Column(name = "code_name", nullable = false)
     private String codeName;
 
-    @Column(name = "code_value", nullable = false)
-    private String codeValue;
-
-    @Column(name = "sort_order", nullable = false)
+    @Column(name = "sort_order", unique = true, nullable = false)
     private Integer sortOrder;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
     @Builder.Default
     @Column(name = "is_active", nullable = false)
@@ -39,7 +39,7 @@ public class CodeDetail {
         return CodeDetail.builder()
                 .id(command.codeId())
                 .codeName(command.codeName())
-                .codeValue(command.codeValue())
+                .description(command.description())
                 .sortOrder(command.sortOrder())
                 .codeGroup(codeGroup)
                 .build();
