@@ -1,5 +1,6 @@
 package com.petsitter.kt.admin.model;
 
+import com.petsitter.kt.admin.service.dto.AddCodeCommand;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -33,5 +34,15 @@ public class CodeDetail {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private CodeGroup codeGroup;
+
+    public static CodeDetail create(CodeGroup codeGroup, AddCodeCommand command) {
+        return CodeDetail.builder()
+                .id(command.codeId())
+                .codeName(command.codeName())
+                .codeValue(command.codeValue())
+                .sortOrder(command.sortOrder())
+                .codeGroup(codeGroup)
+                .build();
+    }
 }
 

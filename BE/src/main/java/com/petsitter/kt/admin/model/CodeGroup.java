@@ -1,5 +1,6 @@
 package com.petsitter.kt.admin.model;
 
+import com.petsitter.kt.admin.service.dto.AddCodeGroupCommand;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,4 +30,12 @@ public class CodeGroup {
     @Builder.Default
     @OneToMany(mappedBy = "codeGroup", cascade = CascadeType.PERSIST)
     private List<CodeDetail> codeDetails = new ArrayList<>();
+
+    public static CodeGroup create(AddCodeGroupCommand command) {
+        return CodeGroup.builder()
+                .id(command.groupId())
+                .groupName(command.groupName())
+                .description(command.description())
+                .build();
+    }
 }
