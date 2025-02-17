@@ -1,5 +1,6 @@
 package com.petsitter.kt.user.model;
 
+import com.petsitter.kt.petsitter.model.Petsitter;
 import com.petsitter.kt.user.service.dto.UserModifyCommand;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -38,6 +39,9 @@ public class User {
 //    @Column(nullable = false)
 //    @Enumerated(EnumType.STRING)
 //    private Role role;
+
+    @OneToOne(mappedBy = "user")
+    private Petsitter petsitter;
 
     public void modify(UserModifyCommand command) {
         this.username = command.username();
