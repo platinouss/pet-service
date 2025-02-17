@@ -44,6 +44,7 @@
             <div v-if="isDropdownOpen" class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
               <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                 <router-link to="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">My Page</router-link>
+                <router-link to="/admin/code-management" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">관리자 페이지</router-link>
                 <a @click="logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Logout</a>
               </div>
             </div>

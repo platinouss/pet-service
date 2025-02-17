@@ -6,6 +6,7 @@ import UserSignup from "../components/user/UserSignup.vue";
 import Petsitter from "../components/pet-sitter/Petsitter.vue";
 import PetsitterRegister from "../components/pet-sitter/PetsitterRegister.vue";
 import PetSitterProfile from "../components/pet-sitter/PetsitterProfile.vue";
+import CodeManagement from '../components/admin/CodeManagement.vue';
 
 const routes = [
     { path: '/', component: MainPage },
@@ -14,7 +15,8 @@ const routes = [
     { path: '/profile', component: UserProfile },
     { path: '/pet-sitter', component: Petsitter },
     { path: '/pet-sitter/register', component: PetsitterRegister },
-    { path: '/pet-sitter/me', component: PetSitterProfile }
+    { path: '/pet-sitter/me', component: PetSitterProfile },
+    { path: '/admin/code-management', component: CodeManagement }
 ]
 
 const router = createRouter({
