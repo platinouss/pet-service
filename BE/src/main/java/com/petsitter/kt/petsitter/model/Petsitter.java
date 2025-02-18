@@ -49,6 +49,10 @@ public class Petsitter {
     @OneToMany(mappedBy = "petsitter", cascade = CascadeType.PERSIST)
     private List<PetsitterAvailableTime> availableTimes = new ArrayList<>();
 
+    @Builder.Default
+    @OneToMany(mappedBy = "petsitter")
+    private List<PetsitterReservation> reservations = new ArrayList<>();
+
     public static Petsitter createPetsitter(User user, RegisterPetsitterCommand command) {
         Petsitter petsitter = Petsitter.builder()
                 .region(command.region())

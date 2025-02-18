@@ -116,21 +116,39 @@
               <p class="text-gray-600 whitespace-pre-line">{{ petsitter.introduce }}</p>
             </div>
 
-<!--            <div class="mb-6">-->
-<!--              <h4 class="text-lg font-semibold mb-2">제공 서비스</h4>-->
-<!--              <div class="grid grid-cols-2 gap-4">-->
-<!--                <div v-for="service in petsitter.services" :key="service.name" -->
-<!--                     class="flex items-start p-3 border rounded-lg">-->
-<!--                  <div class="text-blue-500 mr-3">-->
-<!--                    <component :is="service.icon" class="w-6 h-6" />-->
-<!--                  </div>-->
-<!--                  <div>-->
-<!--                    <div class="font-medium">{{ service.name }}</div>-->
-<!--                    <div class="text-sm text-gray-500">{{ service.description }}</div>-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
+            <div class="mb-6">
+              <h4 class="text-lg font-semibold mb-4">예약하기</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">날짜 선택</label>
+                  <v-calendar
+                    v-model="selectedDate"
+                    :attributes="calendarAttributes"
+                    :min-date="new Date()"
+                    :max-date="maxDate"
+                    @dayclick="onDayClick"
+                  />
+                </div>
+                <div v-if="selectedDate">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">시간 선택</label>
+                  <div class="space-y-2">
+                    <button
+                      v-for="timeSlot in availableTimeSlots"
+                      :key="`${timeSlot.startTime}-${timeSlot.endTime}`"
+                      @click="selectTimeSlot(timeSlot)"
+                      :class="[
+                        'w-full px-4 py-2 rounded-lg text-sm',
+                        isSelectedTimeSlot(timeSlot)
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ]"
+                    >
+                      {{ timeSlot.startTime }} - {{ timeSlot.endTime }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <div class="bg-gray-50 rounded-lg p-4 mb-6">
               <div class="flex justify-between items-center">
@@ -159,7 +177,9 @@
 </template>
 
 <script setup>
-import { ref, defineProps } from 'vue';
+import { ref, defineProps, computed } from 'vue';
+import { useToast } from "vue-toastification";
+import 'v-calendar/style.css';
 
 const props = defineProps({
   petsitter: {
@@ -168,7 +188,70 @@ const props = defineProps({
   }
 });
 
+const toast = useToast();
 const isModalOpen = ref(false);
+const selectedDate = ref(null);
+const selectedTimeSlot = ref(null);
+const maxDate = new Date(new Date().setMonth(new Date().getMonth() + 1));
+
+// 선택 가능한 요일 계산
+const availableDays = computed(() => {
+  return props.petsitter.availableDates.map(date => date.dayOfWeek.toLowerCase());
+});
+
+// 캘린더 속성 설정
+const calendarAttributes = computed(() => [{
+  dates: new Date(),
+  highlight: true,
+  popover: {
+    label: '오늘'
+  }
+}]);
+
+// 해당 날짜의 사용 가능한 시간대 계산
+const availableTimeSlots = computed(() => {
+  if (!selectedDate.value) return [];
+  
+  const dayOfWeek = selectedDate.value.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+  const dateSchedule = props.petsitter.availableDates.find(d => d.dayOfWeek === dayOfWeek);
+  
+  if (!dateSchedule) return [];
+
+  // 시작 시간과 종료 시간 사이의 1시간 단위 슬롯 생성
+  const slots = [];
+  let currentTime = new Date(`2000-01-01T${dateSchedule.startTime}`);
+  const endTime = new Date(`2000-01-01T${dateSchedule.endTime}`);
+
+  while (currentTime < endTime) {
+    const startTime = currentTime.toTimeString().substring(0, 5);
+    currentTime.setHours(currentTime.getHours() + 1);
+    const endTime = currentTime.toTimeString().substring(0, 5);
+    slots.push({ startTime, endTime });
+  }
+
+  return slots;
+});
+
+const onDayClick = (day) => {
+  const dayName = day.date.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+  if (props.petsitter.availableDates.some(d => d.dayOfWeek === dayName)) {
+    selectedDate.value = day.date;
+    selectedTimeSlot.value = null;
+  } else {
+    toast.error('해당 요일은 예약이 불가능합니다.');
+  }
+};
+
+const selectTimeSlot = (timeSlot) => {
+  selectedTimeSlot.value = timeSlot;
+  console.log('Selected time slot:', timeSlot); // 디버깅용
+};
+
+const isSelectedTimeSlot = (timeSlot) => {
+  return selectedTimeSlot.value &&
+    selectedTimeSlot.value.startTime === timeSlot.startTime &&
+    selectedTimeSlot.value.endTime === timeSlot.endTime;
+};
 
 const formatPrice = (price) => {
   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -182,8 +265,74 @@ const closeModal = () => {
   isModalOpen.value = false;
 };
 
-const makeReservation = () => {
-  console.log('예약하기 클릭:', props.petsitter.username);
+const makeReservation = async () => {
+  if (!selectedDate.value || !selectedTimeSlot.value) {
+    toast.error('날짜와 시간을 선택해주세요.');
+    return;
+  }
+
+  const { IMP } = window;
+  IMP.init(import.meta.env.VITE_CUSTOMER_ID);
+
+  // 예약 날짜와 시간 포맷팅
+  const reservationDate = selectedDate.value.toISOString().split('T')[0];
+  const reservationStartTime = `${reservationDate}T${selectedTimeSlot.value.startTime}:00`;
+  const reservationEndTime = `${reservationDate}T${selectedTimeSlot.value.endTime}:00`;
+
+  const merchantUid = `mid_${new Date().getTime()}`;
+
+  const data = {
+    pg: 'uplus',
+    pay_method: 'card',
+    merchant_uid: merchantUid,
+    // amount: props.petsitter.price,
+    amount: 1000,
+    name: `${props.petsitter.username} 펫시터 서비스 비용`,
+    buyer_name: '홍길동',
+    buyer_tel: '01012341234',
+    buyer_email: import.meta.env.VITE_BUYER_EMAIL,
+    buyer_addr: '신사동 661-16',
+    buyer_postcode: '06018'
+  };
+
+  IMP.request_pay(data, async (response) => {
+    console.log('결제 응답:', response);
+    const { success, error_msg, imp_uid } = response;
+    
+    if (success) {
+      try {
+        // 예약 정보를 서버로 전송
+        const reservationData = {
+          petsitterId: props.petsitter.id,
+          date: reservationDate,
+          startTime: reservationStartTime,
+          endTime: reservationEndTime,
+          impUid: imp_uid,
+          amount: data.amount
+        };
+
+        // API 호출 (실제 엔드포인트로 수정 필요)
+        const response = await fetch('/api/reservations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(reservationData)
+        });
+
+        if (!response.ok) {
+          throw new Error('예약 저장에 실패했습니다.');
+        }
+
+        toast.success('예약이 완료되었습니다.');
+        closeModal();
+      } catch (error) {
+        toast.error(`예약 저장 실패: ${error.message}`);
+      }
+    } else {
+      toast.error(`결제 실패: ${error_msg}`);
+    }
+  });
 };
 
 // 요일 포맷팅 함수

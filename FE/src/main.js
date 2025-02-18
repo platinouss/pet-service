@@ -6,6 +6,8 @@ import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import VCalendar from 'v-calendar';
+import 'v-calendar/style.css';
 
 const options = {
     position: "top-right",
@@ -23,7 +25,11 @@ const options = {
 };
 
 const pinia = createPinia();
-createApp(App).use(router).use(Toast, options).use(pinia)
-    .mount('#app');
+const app = createApp(App)
+
+app.use(router).use(Toast, options).use(pinia)
+    .use(VCalendar, {})
+
+app.mount('#app');
 
 pinia.use(piniaPluginPersistedstate)
