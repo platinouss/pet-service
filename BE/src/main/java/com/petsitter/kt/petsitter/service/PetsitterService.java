@@ -29,7 +29,7 @@ public class PetsitterService {
 
     @Transactional(readOnly = true)
     public List<PetsitterResult> findPetsitters(Pageable pageable) {
-        List<Petsitter> petsitters = petsitterRepository.findPetsitterWithUser(pageable);
+        List<Petsitter> petsitters = petsitterRepository.findPetsitterWithUserAndPetsitterAvailableTime(pageable);
         return petsitters.stream().map(PetsitterResult::fromEntity).toList();
     }
 }

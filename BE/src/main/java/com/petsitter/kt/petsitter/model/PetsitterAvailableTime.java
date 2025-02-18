@@ -3,6 +3,7 @@ package com.petsitter.kt.petsitter.model;
 import com.petsitter.kt.common.dto.ScheduleSlot;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @SuperBuilder
+@Getter
 @Entity
 @Table(name = "pet_sitter_availity")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

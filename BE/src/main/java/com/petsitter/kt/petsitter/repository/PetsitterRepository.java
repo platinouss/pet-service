@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PetsitterRepository extends JpaRepository<Petsitter, Long> {
 
-    @Query("SELECT p FROM Petsitter p JOIN FETCH p.user u " +
+    @Query("SELECT p FROM Petsitter p JOIN FETCH p.user u JOIN FETCH p.availableTimes av " +
             "ORDER BY p.id ASC")
-    List<Petsitter> findPetsitterWithUser(Pageable pageable);
+    List<Petsitter> findPetsitterWithUserAndPetsitterAvailableTime(Pageable pageable);
 }

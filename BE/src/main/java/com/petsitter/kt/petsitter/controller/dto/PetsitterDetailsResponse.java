@@ -1,21 +1,30 @@
 package com.petsitter.kt.petsitter.controller.dto;
 
-import com.petsitter.kt.petsitter.model.enums.Region;
 import com.petsitter.kt.petsitter.service.dto.PetsitterResult;
 import lombok.Builder;
 
+import java.util.List;
+
 @Builder
 public record PetsitterDetailsResponse(
+        Long id,
         String username,
-        Region region,
-        Integer price
+        String availableAnimalType,
+        List<PetsitterResult.TimeSlotResult> availableDates,
+        String region,
+        Integer price,
+        String introduce
 ) {
 
     public static PetsitterDetailsResponse fromResult(PetsitterResult result) {
         return PetsitterDetailsResponse.builder()
+                .id(result.id())
                 .username(result.username())
-                .region(result.region())
+                .availableAnimalType(result.availableAnimalType())
+                .availableDates(result.availableDates())
+                .region(result.region().getName())
                 .price(result.price())
+                .introduce(result.introduce())
                 .build();
     }
 }
