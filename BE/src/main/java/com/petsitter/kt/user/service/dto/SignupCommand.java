@@ -1,5 +1,6 @@
 package com.petsitter.kt.user.service.dto;
 
+import com.petsitter.kt.auth.model.Role;
 import com.petsitter.kt.user.model.User;
 import lombok.Builder;
 
@@ -17,6 +18,7 @@ public record SignupCommand(
                 .password(password)
                 .email(email)
                 .phoneNumber(phoneNumber)
+                .role(Role.USER)
                 .build();
     }
 }

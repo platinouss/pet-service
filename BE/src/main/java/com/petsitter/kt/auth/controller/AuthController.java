@@ -24,6 +24,7 @@ public class AuthController {
     public ResponseEntity<Void> signin(@RequestBody SigninRequest request, HttpSession session) {
         UserDetailsResult userDetails = authService.authenticate(request.toQuery());
         session.setAttribute("userId", userDetails.userId());
+        session.setAttribute("role", userDetails.role());
         session.setMaxInactiveInterval(SESSION_TIMEOUT_SECONDS);
         return ResponseEntity.ok().build();
     }

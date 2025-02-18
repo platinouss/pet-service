@@ -1,5 +1,6 @@
 package com.petsitter.kt.user.model;
 
+import com.petsitter.kt.auth.model.Role;
 import com.petsitter.kt.petsitter.model.Petsitter;
 import com.petsitter.kt.user.service.dto.UserModifyCommand;
 import jakarta.persistence.*;
@@ -36,9 +37,9 @@ public class User {
     @Column(nullable = false)
     private boolean isDeleted = false;
 
-//    @Column(nullable = false)
-//    @Enumerated(EnumType.STRING)
-//    private Role role;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @OneToOne(mappedBy = "user")
     private Petsitter petsitter;

@@ -1,5 +1,6 @@
 package com.petsitter.kt.user.service.dto;
 
+import com.petsitter.kt.auth.model.Role;
 import com.petsitter.kt.user.model.User;
 import lombok.Builder;
 
@@ -8,7 +9,8 @@ public record UserDetailsResult(
         Long userId,
         String username,
         String email,
-        String phoneNumber
+        String phoneNumber,
+        Role role
 ) {
 
     public static UserDetailsResult fromEntity(User user) {
@@ -17,6 +19,7 @@ public record UserDetailsResult(
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole())
                 .build();
     }
 }
