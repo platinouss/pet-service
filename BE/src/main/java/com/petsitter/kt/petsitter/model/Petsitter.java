@@ -1,7 +1,6 @@
 package com.petsitter.kt.petsitter.model;
 
 import com.petsitter.kt.common.dto.ScheduleSlot;
-import com.petsitter.kt.petsitter.model.enums.AvailableAnimalType;
 import com.petsitter.kt.petsitter.model.enums.PetsitterStatus;
 import com.petsitter.kt.petsitter.model.enums.Region;
 import com.petsitter.kt.petsitter.service.dto.RegisterPetsitterCommand;
@@ -30,8 +29,7 @@ public class Petsitter {
     @Enumerated(EnumType.STRING)
     private Region region;
 
-    @Enumerated(EnumType.STRING)
-    private AvailableAnimalType availableAnimalType;
+    private String availableAnimalType;
 
     private Integer price;
 
@@ -54,6 +52,7 @@ public class Petsitter {
     public static Petsitter createPetsitter(User user, RegisterPetsitterCommand command) {
         Petsitter petsitter = Petsitter.builder()
                 .region(command.region())
+                .availableAnimalType(String.join(",", command.availableAnimalTypes()))
                 .price(command.price())
                 .profileImageUrl(command.profileImageUrl())
                 .introduce(command.introduce())
