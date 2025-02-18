@@ -2,8 +2,11 @@ package com.petsitter.kt.petsitter.controller;
 
 import com.petsitter.kt.petsitter.controller.dto.PetsitterAddRequest;
 import com.petsitter.kt.petsitter.controller.dto.PetsitterDetailsResponse;
+import com.petsitter.kt.petsitter.controller.dto.PetsitterReservationRequest;
+import com.petsitter.kt.petsitter.controller.dto.ReservationDetailsResponse;
 import com.petsitter.kt.petsitter.service.PetsitterService;
 import com.petsitter.kt.petsitter.service.dto.PetsitterResult;
+import com.petsitter.kt.petsitter.service.dto.ReservationResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -25,9 +28,23 @@ public class PetsitterController {
         return ResponseEntity.ok(results.stream().map(PetsitterDetailsResponse::fromResult).toList());
     }
 
+    @GetMapping("/reservation")
+    public ResponseEntity<List<ReservationDetailsResponse>> reservationDetails(@SessionAttribute(name = "userId") Long userId) {
+        List<ReservationResult> results = petsitterService.findReservations(userId);
+        System.out.println(results);
+        return ResponseEntity.ok(results.stream().map(ReservationDetailsResponse::fromResult).toList());
+    }
+
     @PostMapping
     public ResponseEntity<Void> petsitterAdd(@SessionAttribute(name = "userId") Long userId, @RequestBody PetsitterAddRequest request) {
         petsitterService.registerPetsitter(userId, request.toCommand());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reservation")
+    public ResponseEntity<Void> petsitterReservation(@SessionAttribute(name = "userId") Long userId, @RequestBody PetsitterReservationRequest request) {
+        System.out.println(request);
+        petsitterService.createReservation(userId, request.toCommand());
         return ResponseEntity.ok().build();
     }
 }
