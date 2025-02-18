@@ -1,6 +1,5 @@
 <template>
   <main class="min-h-screen bg-gray-50">
-    <!-- 헤더 섹션 - 그라데이션 배경으로 변경 -->
     <div class="bg-gradient-to-r from-blue-500 to-indigo-600 py-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center">
@@ -8,7 +7,7 @@
             신뢰할 수 있는 펫시터를 만나보세요
           </h1>
           <p class="text-xl text-blue-100 mb-8">
-            전문 펫시터가 여러분의 소중한 가족을 안전하게 돌봐드립니다
+            전문 펫시터가 여러분의 소중한 가족을 안전하게 돌봐드립니다.
           </p>
           <div class="flex justify-center space-x-4">
             <button 
@@ -28,11 +27,9 @@
       </div>
     </div>
 
-    <!-- 필터 섹션 -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">
       <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- 지역 필터 -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">지역</label>
             <select 
@@ -45,7 +42,6 @@
               </option>
             </select>
           </div>
-          <!-- 펫 종류 필터 -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">돌봄 가능한 반려동물</label>
             <select 
@@ -58,11 +54,10 @@
               </option>
             </select>
           </div>
-          <!-- 가격 범위 필터 -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">시급 범위</label>
-            <select 
-              v-model="filters.priceRange" 
+            <select
+              v-model="filters.priceRange"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">전체 가격대</option>
@@ -75,10 +70,8 @@
       </div>
     </div>
 
-    <!-- 펫시터 목록 섹션 - 배경색 변경 -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
 
-      <!-- 펫시터 카드 그리드 -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <PetsitterCard 
           v-for="petsitter in filteredPetsitters" 
@@ -87,8 +80,7 @@
         />
       </div>
 
-      <!-- 결과 없음 표시 - 디자인 개선 -->
-      <div 
+      <div
         v-if="filteredPetsitters.length === 0" 
         class="text-center py-16 bg-white rounded-xl shadow-lg mt-8"
       >
@@ -98,117 +90,116 @@
       </div>
     </div>
 
-    <!-- 펫시터 등록 모달 -->
-    <PetsitterRegister 
+    <PetsitterRegister
       :isOpen="isModalOpen"
       @close="closeModal"
     />
   </main>
 </template>
 
-<script>
+<script setup>
+import {ref, computed, onMounted} from 'vue';
 import PetsitterCard from './PetsitterCard.vue';
 import PetsitterRegister from './PetsitterRegister.vue';
+import {useToast} from "vue-toastification";
 
-export default {
-  components: {
-    PetsitterCard,
-    PetsitterRegister
-  },
-  data() {
-    return {
-      isModalOpen: false,
-      locations: ['서울 강남구', '서울 마포구', '서울 송파구', '경기 성남시', '경기 수원시'],
-      petTypes: ['강아지', '고양이', '토끼', '햄스터', '새', '파충류'],
-      filters: {
-        location: '',
-        petType: '',
-        priceRange: ''
+const toast = useToast();
+const isModalOpen = ref(false);
+const locations = ref([
+  '서울특별시',
+  '부산광역시',
+  '대구광역시',
+  '인천광역시',
+  '광주광역시',
+  '대전광역시',
+  '울산광역시',
+  '세종특별자치시',
+  '경기도',
+  '강원도',
+  '충청북도',
+  '충청남도',
+  '전라북도',
+  '전라남도',
+  '경상북도',
+  '경상남도',
+  '제주특별자치도'
+]);
+const petTypes = ref(['강아지', '고양이', '토끼', '햄스터', '새', '파충류']);
+const filters = ref({
+  location: '',
+  petType: '',
+  priceRange: ''
+});
+const sortBy = ref('rating');
+const DEFAULT_IMAGE_URL = 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80';
+const petsitters = ref([]);
+
+onMounted(async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/pet-sitters`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      sortBy: 'rating',
-      petsitters: [
-        {
-          id: 1,
-          name: '김펫돌',
-          imageUrl: 'https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-          location: '서울 강남구',
-          petTypes: ['강아지', '고양이'],
-          availability: '주중 오전',
-          hourlyRate: 15000,
-          rating: 4.8,
-          reviewCount: 56
-        },
-        {
-          id: 2,
-          name: '이멍냥',
-          imageUrl: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-          location: '서울 마포구',
-          petTypes: ['강아지'],
-          availability: '주말',
-          hourlyRate: 20000,
-          rating: 4.9,
-          reviewCount: 43
-        },
-        {
-          id: 3,
-          name: '박애견',
-          imageUrl: 'https://images.unsplash.com/photo-1516734212186-65266f46771f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
-          location: '경기 성남시',
-          petTypes: ['고양이', '소동물'],
-          availability: '평일 저녁',
-          hourlyRate: 18000,
-          rating: 4.7,
-          reviewCount: 38
-        }
-      ]
-    };
-  },
-  computed: {
-    filteredPetsitters() {
-      let result = [...this.petsitters];
-
-      // 필터 적용
-      if (this.filters.location) {
-        result = result.filter(p => p.location === this.filters.location);
-      }
-      if (this.filters.petType) {
-        result = result.filter(p => p.petTypes.includes(this.filters.petType));
-      }
-      if (this.filters.priceRange) {
-        const [min, max] = this.filters.priceRange.split('-').map(Number);
-        result = result.filter(p => {
-          if (max) {
-            return p.hourlyRate >= min && p.hourlyRate <= max;
-          }
-          return p.hourlyRate >= min;
-        });
-      }
-
-      // 정렬 적용
-      result.sort((a, b) => {
-        switch (this.sortBy) {
-          case 'rating':
-            return b.rating - a.rating;
-          case 'price-low':
-            return a.hourlyRate - b.hourlyRate;
-          case 'price-high':
-            return b.hourlyRate - a.hourlyRate;
-          default:
-            return 0;
-        }
-      });
-
-      return result;
-    }
-  },
-  methods: {
-    openModal() {
-      this.isModalOpen = true;
-    },
-    closeModal() {
-      this.isModalOpen = false;
-    }
+      credentials: 'include'
+    });
+    const data = await response.json();
+    const petsittersWithImage = data.map(petsitter => ({
+      ...petsitter,
+      imageUrl: DEFAULT_IMAGE_URL
+    }));
+    petsitters.value.push(...petsittersWithImage);
+  } catch (e) {
+    toast.error("펫시터 목록을 조회할 수 없습니다.");
   }
+});
+
+const filteredPetsitters = computed(() => {
+  let result = [...petsitters.value];
+
+  if (filters.value.location) {
+    result = result.filter(p => p.region === filters.value.location);
+  }
+  if (filters.value.petType) {
+    result = result.filter(p => {
+      const types = p.availableAnimalType.includes(',') 
+        ? p.availableAnimalType.split(',')
+        : [p.availableAnimalType];
+      return types.includes(filters.value.petType);
+    });
+  }
+  if (filters.value.priceRange) {
+    const [min, max] = filters.value.priceRange.split('-').map(Number);
+    result = result.filter(p => {
+      if (max) {
+        return p.price >= min && p.price <= max;
+      }
+      return p.price >= min;
+    });
+  }
+
+  result.sort((a, b) => {
+    switch (sortBy.value) {
+      case 'rating':
+        return b.rating - a.rating;
+      case 'price-low':
+        return a.price - b.price;
+      case 'price-high':
+        return b.price - a.price;
+      default:
+        return 0;
+    }
+  });
+
+  return result;
+});
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
 };
 </script>
 
@@ -217,29 +208,4 @@ main {
   padding: 20px;
   background-color: #172554;
 }
-
-  .card {
-    @apply bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300;
-  }
-
-  .input {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500;
-  }
-
-  .btn {
-    @apply font-bold py-2 px-4 rounded transition duration-300 ease-in-out;
-  }
-
-  .btn-primary {
-    @apply bg-indigo-600 text-white hover:bg-indigo-700;
-  }
-
-  .btn-secondary {
-    @apply bg-purple-600 text-white hover:bg-purple-700;
-  }
-
-  .btn-danger {
-    @apply bg-red-600 text-white hover:bg-red-700;
-  }
-
 </style>

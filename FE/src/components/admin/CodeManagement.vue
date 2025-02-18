@@ -74,7 +74,7 @@
                     @click="selectCode(code)"
                     class="hover:bg-gray-50 cursor-pointer"
                     :class="{'bg-indigo-50': selectedCode?.codeId === code.codeId}">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ code.order }}</td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ code.sortOrder }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ code.codeName }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ code.codeId }}</td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ code.description }}</td>
@@ -95,13 +95,13 @@
           <label class="block text-sm font-medium text-gray-700">그룹 ID</label>
           <input v-model="newGroup.groupId" 
                  type="text" 
-                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="그룹 ID를 입력해주세요.">
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700">그룹명</label>
           <input v-model="newGroup.groupName" 
                  type="text" 
-                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="그룹명을 입력해주세요.">
         </div>
         <div class="flex justify-end space-x-3">
           <button @click="closeGroupModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
@@ -120,20 +120,24 @@
       <h3 class="text-lg font-medium text-gray-900 mb-4">코드 추가</h3>
       <div class="space-y-4">
         <div>
+          <label class="block text-sm font-medium text-gray-700">그룹 ID</label>
+          <input v-model="selectedGroup.groupId" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" readonly>
+        </div>
+        <div>
           <label class="block text-sm font-medium text-gray-700">코드 ID</label>
-          <input v-model="newCode.codeId" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+          <input v-model="newCode.codeId" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="코드 ID를 입력해주세요.">
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700">코드명</label>
-          <input v-model="newCode.codeName" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+          <input v-model="newCode.codeName" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="코드명을 입력해주세요.">
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700">설명</label>
-          <input v-model="newCode.description" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+          <input v-model="newCode.description" type="text" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="설명을 입력해주세요.">
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700">순서</label>
-          <input v-model="newCode.order" type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+          <input v-model="newCode.sortOrder" type="number" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
         </div>
         <div class="flex justify-end space-x-3">
           <button @click="closeCodeModal" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
@@ -149,32 +153,48 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { PlusIcon, TrashIcon } from '@heroicons/vue/24/outline'
+import {onMounted, ref} from 'vue'
+import {PlusIcon, TrashIcon} from '@heroicons/vue/24/outline'
+import {useToast} from "vue-toastification";
 
-const codeGroups = ref([
-  { groupId: 'anmctg', groupName: '동물구분', codes: [
-    { order: 1, codeName: '강아지', codeId: 'dog', description: '강아지 구분' },
-    { order: 2, codeName: '고양이', codeId: 'cat', description: '고양이 구분' }
-  ]},
-  { groupId: 'dogctg', groupName: '개품종', codes: [
-    { order: 1, codeName: '말티즈', codeId: 'maltese', description: '말티즈 품종' },
-    { order: 2, codeName: '푸들', codeId: 'poodle', description: '푸들 품종' }
-  ]},
-  { groupId: 'catctg', groupName: '고양이품종', codes: [
-    { order: 1, codeName: '페르시안', codeId: 'persian', description: '페르시안 품종' },
-    { order: 2, codeName: '러시안블루', codeId: 'russian-blue', description: '러시안블루 품종' }
-  ]}
-])
-
+const codeGroups = ref([])
 const codes = ref([])
-
 const selectedGroup = ref(null)
 const selectedCode = ref(null)
+const toast = useToast();
 
-const selectGroup = (group) => {
+onMounted(async () => {
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/code-management/code-group`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'
+    });
+    const data = await response.json();
+    data.forEach((item) => codeGroups.value.push({...item, codes: []}))
+  } catch (e) {
+    toast.error('내 정보 조회에 실패했습니다.');
+  }
+});
+
+const selectGroup = async (group) => {
   selectedGroup.value = group
-  codes.value = group.codes || []
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/code-management/code?groupId=${group.groupId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'
+    });
+    group.codes = await response.json();
+    codes.value = group.codes || []
+  } catch (e) {
+    console.log(e)
+    toast.error('해당 그룹의 코드 조회에 실패했습니다.');
+  }
 }
 
 const selectCode = (code) => {
@@ -183,17 +203,16 @@ const selectCode = (code) => {
 
 const showGroupModal = ref(false)
 const showCodeModal = ref(false)
-
 const newGroup = ref({
   groupId: '',
   groupName: ''
 })
-
 const newCode = ref({
+  groupId: '',
   codeId: '',
   codeName: '',
   description: '',
-  order: 1
+  sortOrder: 1
 })
 
 const openAddGroupModal = () => {
@@ -205,33 +224,44 @@ const closeGroupModal = () => {
   showGroupModal.value = false
 }
 
-const addGroup = () => {
-  if (newGroup.value.groupId && newGroup.value.groupName) {
-    const isDuplicate = codeGroups.value.some(group => group.groupId === newGroup.value.groupId)
-    if (isDuplicate) {
-      alert('이미 존재하는 그룹 ID입니다.')
-      return
-    }
-
+const addGroup = async () => {
+  if (!newGroup.value.groupId || !newGroup.value.groupName) {
+    toast.error("그룹 ID와 그룹 이름을 모두 입력하세요")
+    return;
+  }
+  try {
+    await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/code-management/code-group`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        groupId: newGroup.value.groupId,
+        groupName: newGroup.value.groupName
+      }),
+      credentials: 'include'
+    });
     codeGroups.value.push({
       ...newGroup.value,
       codes: []
-    })
-    closeGroupModal()
+    });
+    closeGroupModal();
+  } catch (e) {
+    toast.error('그룹 추가에 실패했습니다.');
   }
 }
 
 const openAddCodeModal = () => {
   if (!selectedGroup.value) {
-    alert('코드 그룹을 먼저 선택해주세요.')
-    return
+    toast.error('추가하고자 하는 코드 그룹을 선택해주세요');
+    return;
   }
   showCodeModal.value = true
   newCode.value = {
     codeId: '',
     codeName: '',
     description: '',
-    order: codes.value.length + 1
+    sortOrder: codes.value.length + 1
   }
 }
 
@@ -239,10 +269,28 @@ const closeCodeModal = () => {
   showCodeModal.value = false
 }
 
-const addCode = () => {
-  if (!selectedGroup.value) return
-  
-  if (newCode.value.codeId && newCode.value.codeName) {
+const addCode = async () => {
+  if (!selectedGroup.value) return;
+  if (!selectedGroup.value.groupId || !newCode.value.codeId || !newCode.value.codeName || !newCode.value.sortOrder) {
+    toast.error("필드 값을 입력해주세요.");
+    return;
+  }
+  try {
+    console.log(newCode.value.sortOrder);
+    await fetch(`${import.meta.env.VITE_API_URL}/api/v1/admin/code-management/code`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        codeId: newCode.value.codeId,
+        codeName: newCode.value.codeName,
+        description: newCode.value.description,
+        groupId: selectedGroup.value.groupId,
+        sortOrder: newCode.value.sortOrder
+      }),
+      credentials: 'include'
+    });
     const groupIndex = codeGroups.value.findIndex(g => g.groupId === selectedGroup.value.groupId)
     if (groupIndex !== -1) {
       if (!codeGroups.value[groupIndex].codes) {
@@ -251,7 +299,10 @@ const addCode = () => {
       codeGroups.value[groupIndex].codes.push({ ...newCode.value })
       codes.value = codeGroups.value[groupIndex].codes
     }
-    closeCodeModal()
+    toast.success('코드를 추가했습니다.');
+    closeCodeModal();
+  } catch (e) {
+    toast.error('그룹 추가에 실패했습니다.');
   }
 }
 
