@@ -7,6 +7,7 @@ import Petsitter from "../components/pet-sitter/Petsitter.vue";
 import PetsitterRegister from "../components/pet-sitter/PetsitterRegister.vue";
 import PetSitterProfile from "../components/pet-sitter/PetsitterProfile.vue";
 import CodeManagement from '../components/admin/CodeManagement.vue';
+import Forbidden from '../components/common/Forbidden.vue'
 
 const routes = [
     { path: '/', component: MainPage },
@@ -16,7 +17,12 @@ const routes = [
     { path: '/pet-sitter', component: Petsitter },
     { path: '/pet-sitter/register', component: PetsitterRegister },
     { path: '/pet-sitter/me', component: PetSitterProfile },
-    { path: '/admin/code-management', component: CodeManagement }
+    { path: '/admin/code-management', component: CodeManagement },
+    {
+        path: '/forbidden',
+        name: 'Forbidden',
+        component: Forbidden
+    }
 ]
 
 const router = createRouter({

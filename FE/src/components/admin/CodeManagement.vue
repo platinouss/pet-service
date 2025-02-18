@@ -156,7 +156,9 @@
 import {onMounted, ref} from 'vue'
 import {PlusIcon, TrashIcon} from '@heroicons/vue/24/outline'
 import {useToast} from "vue-toastification";
+import {useRouter} from 'vue-router';
 
+const router = useRouter();
 const codeGroups = ref([])
 const codes = ref([])
 const selectedGroup = ref(null)
@@ -172,6 +174,12 @@ onMounted(async () => {
       },
       credentials: 'include'
     });
+    
+    if (response.status === 403) {
+      router.push('/forbidden');
+      return;
+    }
+    
     const data = await response.json();
     data.forEach((item) => codeGroups.value.push({...item, codes: []}))
   } catch (e) {
