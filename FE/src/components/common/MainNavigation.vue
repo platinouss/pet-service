@@ -62,14 +62,17 @@
 import { ref } from 'vue'
 import { Menu, X, ChevronDown } from 'lucide-vue-next'
 import { useAuthStore } from "../../stores/auth.js";
+import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
+const router = useRouter();
 
 const isMenuOpen = ref(false)
 const isDropdownOpen = ref(false)
 
-const logout = () => {
-  isConnected.value = false
-  isDropdownOpen.value = false
+const logout = async () => {
+  await authStore.logout();
+  isDropdownOpen.value = false;
+  router.push('/');
 }
 </script>
