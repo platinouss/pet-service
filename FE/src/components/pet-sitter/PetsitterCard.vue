@@ -301,7 +301,6 @@ const makeReservation = async () => {
     
     if (success) {
       try {
-        // 예약 정보를 서버로 전송
         const reservationData = {
           petsitterId: props.petsitter.id,
           date: reservationDate,
@@ -311,12 +310,12 @@ const makeReservation = async () => {
           amount: data.amount
         };
 
-        // API 호출 (실제 엔드포인트로 수정 필요)
-        const response = await fetch('/api/reservations', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/pet-sitters/reservation`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify(reservationData)
         });
 
@@ -327,6 +326,7 @@ const makeReservation = async () => {
         toast.success('예약이 완료되었습니다.');
         closeModal();
       } catch (error) {
+        console.log(error);
         toast.error(`예약 저장 실패: ${error.message}`);
       }
     } else {

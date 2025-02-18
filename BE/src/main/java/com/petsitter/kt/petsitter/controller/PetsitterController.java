@@ -31,7 +31,6 @@ public class PetsitterController {
     @GetMapping("/reservation")
     public ResponseEntity<List<ReservationDetailsResponse>> reservationDetails(@SessionAttribute(name = "userId") Long userId) {
         List<ReservationResult> results = petsitterService.findReservations(userId);
-        System.out.println(results);
         return ResponseEntity.ok(results.stream().map(ReservationDetailsResponse::fromResult).toList());
     }
 
@@ -43,7 +42,6 @@ public class PetsitterController {
 
     @PostMapping("/reservation")
     public ResponseEntity<Void> petsitterReservation(@SessionAttribute(name = "userId") Long userId, @RequestBody PetsitterReservationRequest request) {
-        System.out.println(request);
         petsitterService.createReservation(userId, request.toCommand());
         return ResponseEntity.ok().build();
     }

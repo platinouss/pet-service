@@ -99,19 +99,22 @@
       </div>
       <div class="p-6 border-t border-gray-200">
         <div>
-          <h3 class="text-lg font-semibold mb-2">예약</h3>
+          <h3 class="text-lg font-semibold mb-2">예약 내역</h3>
           <div class="bg-gray-100 p-4 rounded-lg space-y-4">
-            <div v-for="(reservation, index) in reservations" :key="index" class="bg-white p-3 rounded shadow-sm">
+            <div v-if="reservations.length === 0" class="text-center text-gray-500 py-4">
+              예약 내역이 없습니다.
+            </div>
+            <div 
+              v-for="(reservation, index) in reservations" 
+              :key="index" 
+              class="bg-white p-4 rounded-lg shadow-sm"
+            >
               <div class="flex justify-between items-center mb-2">
-                <span class="font-semibold">{{ reservation.date }}</span>
-                <span :class="['px-2 py-1 text-xs font-semibold rounded-full', statusColors[reservation.status]]">
-                  {{ reservation.status }}
-                </span>
+                <span class="font-medium">{{ formatDate(reservation.date) }}</span>
+                <span class="text-sm text-gray-500">예약번호: {{ reservation.impUid || '-' }}</span>
               </div>
               <div class="text-sm text-gray-600">
-                <p>시간: {{ reservation.time }}</p>
-                <p>펫시터: {{ reservation.petsitterName }}</p>
-                <p>지역: {{ reservation.location }}</p>
+                <p>시간: {{ formatTime(reservation.startTime) }} - {{ formatTime(reservation.endTime) }}</p>
               </div>
             </div>
           </div>
@@ -175,35 +178,39 @@ const email = ref('');
 const phoneNumber = ref(['', '', '']);
 const toast = useToast();
 const showDeleteModal = ref(false);
+const reservations = ref([]);
+const isLoading = ref(true);
 
 onMounted(async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/me`, {
+    const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/users/me`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include'
     });
-    const data = await response.json();
-    username.value = data.username;
-    email.value = data.email;
-    phoneNumber.value = data.phoneNumber.split('-');
+    const userData = await userResponse.json();
+    username.value = userData.username;
+    email.value = userData.email;
+    phoneNumber.value = userData.phoneNumber.split('-');
+
+    const reservationResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/pet-sitters/reservation`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'
+    });
+    reservations.value = await reservationResponse.json();
+    console.log('예약 데이터:', reservations.value);
   } catch (e) {
-    toast.error('내 정보 조회에 실패했습니다.');
+    console.error('에러:', e);
+    toast.error('정보 조회에 실패했습니다.');
+  } finally {
+    isLoading.value = false;
   }
 });
-
-// const reservations = ref([
-//   { date: "2023-06-15", time: "14:00-16:00", petsitterName: "홍길동", location: "서울 강남구", status: "진행 전" },
-//   { date: "2023-06-10", time: "13:00-15:00", petsitterName: "아무개", location: "서울 송파구", status: "진행 완료" },
-// ])
-//
-// const statusColors = {
-//   "진행 전": "bg-blue-500 text-white",
-//   "진행 중": "bg-yellow-500 text-white",
-//   "진행 완료": "bg-green-500 text-white",
-// }
 
 const handleEdit = () => {
   isEditing.value = true;
@@ -247,6 +254,18 @@ const handleDeleteAccount = async () => {
   } finally {
     showDeleteModal.value = false;
   }
+};
+
+const formatDate = (date) => {
+  if (!date) return '-';
+  const [year, month, day] = date.split('-');
+  return `${year}년 ${month}월 ${day}일`;
+};
+
+const formatTime = (time) => {
+  if (!time) return '-';
+  const [hours, minutes] = time.split(':');
+  return `${hours}:${minutes}`;
 };
 </script>
 
